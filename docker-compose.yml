@@ -9,7 +9,7 @@ services:
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-25}
     read_only: true
     tmpfs:
-      - /tmp:size=128m,noexec,nosuid,nodev
+      - /tmp:size=128m,noexec,nosuid,nodev,mode=1777
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     pids_limit: 128

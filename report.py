@@ -13,7 +13,15 @@ def build_pdf(r,path):
     rows=[["Filename",r["filename"]],["Type",r["file_type"]],["Size",str(r["size_bytes"])],["Entropy sample",str(r["entropy_sample"])],["MD5",r["hashes"]["md5"]],["SHA-1",r["hashes"]["sha1"]],["SHA-256",r["hashes"]["sha256"]]]
     t=Table([[Paragraph(escape(str(a)),styles["BodyText"]),Paragraph(escape(str(b)),styles["BodyText"])] for a,b in rows],colWidths=[35*mm,130*mm])
     t.setStyle(TableStyle([("GRID",(0,0),(-1,-1),.4,colors.lightgrey),("VALIGN",(0,0),(-1,-1),"TOP"),("BACKGROUND",(0,0),(0,-1),colors.HexColor("#eef3f8"))]))
-    story.append(t);story.append(Paragraph("Static Findings",styles["FGSection"]))
+    story.append(t)
+    story.append(Paragraph("File Signature Validation",styles["FGSection"]))
+    fi=r.get("file_identification", {})
+    validation_rows=[["Header signature",fi.get("signature_hex","N/A")],["Signature recognized",str(fi.get("signature_match","N/A"))],["Filename extension",fi.get("extension","N/A")],["Extension consistent",str(fi.get("extension_match","N/A"))],["Expected extensions",", ".join(fi.get("expected_extensions",[])) or "N/A"],["Bytes inspected",f'{r.get("analyzed_bytes",0)} (truncated={r.get("sample_truncated",False)})']]
+    vt=Table([[Paragraph(escape(str(a)),styles["BodyText"]),Paragraph(escape(str(b)),styles["BodyText"])] for a,b in validation_rows],colWidths=[35*mm,130*mm])
+    vt.setStyle(TableStyle([("GRID",(0,0),(-1,-1),.4,colors.lightgrey),("VALIGN",(0,0),(-1,-1),"TOP"),("BACKGROUND",(0,0),(0,-1),colors.HexColor("#eef3f8"))]))
+    story.append(vt)
+    story.append(Paragraph(escape(fi.get("identification_note","")),styles["BodyText"]))
+    story.append(Paragraph("Static Findings",styles["FGSection"]))
     for x in r["indicators"]:story += [Paragraph(escape(x["category"]),styles["Heading3"]),Paragraph("<b>Evidence:</b> "+escape(x["evidence"]),styles["BodyText"]),Paragraph(escape(x["explanation"]),styles["BodyText"])]
     story.append(Paragraph("YARA",styles["FGSection"]));story.append(Paragraph(escape(r["yara"]["note"]),styles["BodyText"]))
     for x in r["yara"]["matches"]:story.append(Paragraph(escape(x),styles["BodyText"]))
@@ -21,7 +29,7 @@ def build_pdf(r,path):
     if vt.get("stats"):story.append(Paragraph(escape(str(vt["stats"])),styles["BodyText"]))
     for x in vt.get("detections",[]):story.append(Paragraph(escape(f'{x["engine"]}: {x["category"]} — {x["result"]}'),styles["BodyText"]))
     story.append(Paragraph("Extracted Strings (sample)",styles["FGSection"]))
-    for x in r["strings"][:80]:story.append(Paragraph(escape(x),styles["Code"]))
+    for x in r.get("string_evidence",[])[:80]:story.append(Paragraph(escape(f'{x.get("offset_hex", "")}: {x.get("value", "")}'),styles["Code"]))
     story.append(Paragraph("Limitations",styles["FGSection"]))
     for x in r["limitations"]:story.append(Paragraph("• "+escape(x),styles["BodyText"]))
     story.append(Spacer(1,8));story.append(Paragraph("FileGuard does not execute uploaded files. This report is triage evidence, not a safety guarantee.",styles["Italic"]))

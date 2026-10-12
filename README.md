@@ -26,3 +26,19 @@ Create a Pipeline job connected to this repository and use `Jenkinsfile`. The ag
 
 ## MVP limitations
 Reports are held in memory and disappear after a restart; this is not yet suitable for multiple workers or public deployment. Static checks are limited, heuristic results can be wrong, and the score is not a probability. No uploaded file is executed. Do not expose publicly without rate limits, stronger isolation and abuse controls.
+
+## Phase 2: improved static triage
+
+The enhanced analyzer adds bounded header-signature identification, filename-extension consistency checks, Shannon entropy over the inspected sample, printable-string offsets, and evidence offsets for heuristic matches. It still does not execute uploaded files or claim a definitive malware verdict. Header recognition is partial format identification, not full file validation. The first 2 MiB are used for entropy, string extraction, and heuristic checks.
+
+After updating an existing checkout, rebuild the image:
+
+```powershell
+git status
+docker compose up --build -d
+docker compose ps
+docker compose logs --tail 100
+Invoke-RestMethod http://localhost:5000/health
+```
+
+Reports are currently stored in process memory, so previously generated report links may stop working after container restart. This is expected for the MVP.

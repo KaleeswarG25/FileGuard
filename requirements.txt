@@ -1,5 +1,1 @@
-Flask>=3.0,<4
-Werkzeug>=3.0,<4
-requests>=2.32,<3
-reportlab>=4.2,<5
-gunicorn>=22,<24
+Flask>=3.0,<4\nWerkzeug>=3.0,<4\nrequests>=2.32,<3\nreportlab>=4.2,<5\ngunicorn>=22,<24\n
