@@ -1,0 +1,1 @@
+.env\n.venv/\n__pycache__/\n*.py[cod]\n.pytest_cache/\n*.pdf\n
